@@ -3,6 +3,10 @@ import 'package:tawlbwrdd/db/gamedata.dart';
 import 'package:tawlbwrdd/ui/widgets/login.dart';
 import 'package:tawlbwrdd/model/fuseduserprofile.dart';
 
+///
+/// Shows the login screen.  All this asks for is a name
+/// right now.
+///
 class LoginScreen extends StatefulWidget {
   final GameData data;
 
@@ -18,8 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     // Get the games and setup the callback.
-    widget.data.currentProfileChanged.listen((FusedUserProfile user) {
+    widget.data.onProfileChanged.listen((FusedUserProfile user) {
       setState(() {});
+      if (user != null) {
+        // Show the games...
+        Navigator.popAndPushNamed(context, "/Home");
+      }
     });
     super.initState();
   }
@@ -33,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text("Hello " + widget.data.currentProfile.displayName),
         FlatButton(
           child: Text("Show Games"),
-          onPressed: () => Navigator.pushNamed(context, "/Home"),
+          onPressed: () => Navigator.popAndPushNamed(context, "/Home"),
           textTheme: Theme.of(context).buttonTheme.textTheme,
         )
       ],

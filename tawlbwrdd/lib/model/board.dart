@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+///
+/// The piece in the board.
+///
 enum Piece {
   King,
   Defender,
@@ -7,6 +10,9 @@ enum Piece {
   Empty,
 }
 
+///
+/// Specific point in the board.
+///
 class Point {
   final int x;
   final int y;
@@ -30,6 +36,9 @@ class Point {
   int get hashCode => x.hashCode ^ y.hashCode;
 }
 
+///
+/// The board itself.
+///
 class Board {
   List<List<Piece>> pieces;
 
@@ -44,6 +53,9 @@ class Board {
             (int y) => new List<Piece>.generate(
                 BOARD_SIZE, (int x) => b.pieces[y][x]));
 
+  ///
+  /// Creates the basic layout for the board.
+  ///
   void setupBasicLayout() {
     for (int i = 0; i < 5; i++) {
       pieces[0][i + 3] = Piece.Attacker;
@@ -68,12 +80,18 @@ class Board {
 
   static const String PIECE = "PIECE";
 
+  ///
+  /// Figure out if two pieces are the same.
+  ///
   bool isPieceEquivilant(Piece p1, Piece p2) {
     return p1 == p2 ||
         p1 == Piece.King && p2 == Piece.Defender ||
         p2 == Piece.King && p1 == Piece.Defender;
   }
 
+  ///
+  /// Create the board from the json representation.
+  ///
   Board.fromJSON(Map<dynamic, dynamic> data) {
     // Start with an empty board.
     pieces = new List<List<Piece>>.generate(data.length,
@@ -89,6 +107,9 @@ class Board {
     });
   }
 
+  ///
+  /// Turn the board into json.
+  ///
   Map<String, dynamic> toJSON() {
     Map<String, dynamic> data = {};
     int y = 0;

@@ -3,6 +3,7 @@ import 'package:tawlbwrdd/db/gamedata.dart';
 import 'package:tawlbwrdd/model/game.dart';
 import 'package:tawlbwrdd/ui/widgets/gamelistwidget.dart';
 import 'package:tawlbwrdd/model/fuseduserprofile.dart';
+import 'package:tawlbwrdd/ui/widgets/drawer.dart';
 
 import 'dart:async';
 
@@ -19,28 +20,36 @@ class GameList extends StatefulWidget {
 
 class _GameListState extends State<GameList> {
   List<Game> games;
+  List<Game> gamesNeedingPlayers;
   StreamSubscription<List<Game>> stream;
-  bool loading;
+  StreamSubscription<List<Game>> waitingGames;
+  bool loading = true;
+  bool loadingWaiting = true;
 
   @override
   void initState() {
     // Get the games and setup the callback.
     loading = true;
-    try {
-      widget.data
-          .getGames(widget.data.currentFirebaseUser.uid)
-          .then((GameListSetup data) {
-        // Sort them first
+    loadingWaiting = true;
+    widget.data
+        .getGames(widget.data.currentFirebaseUser.uid)
+        .then((GameListSetup data) {
+      // Sort them first
+      _filterAndSetGames(data.games);
+      stream = data.stream.listen((List<Game> games) {
         _filterAndSetGames(data.games);
-        stream = data.stream.listen((List<Game> games) {
-          _filterAndSetGames(data.games);
-        });
-        loading = false;
       });
-    } catch (e, s) {
-      print(s);
-    }
-    widget.data.currentProfileChanged.listen((FusedUserProfile user) {
+      loading = false;
+    });
+    widget.data.getGamesNeedingPlayers().then((GameListSetup data) {
+      // Sort them first
+      gamesNeedingPlayers = data.games;
+      waitingGames = data.stream.listen((List<Game> games) {
+        gamesNeedingPlayers = data.games;
+      });
+      loadingWaiting = false;
+    });
+    widget.data.onProfileChanged.listen((FusedUserProfile user) {
       setState(() {});
     });
     super.initState();
@@ -82,11 +91,37 @@ class _GameListState extends State<GameList> {
           data: widget.data,
           onTap: () => Navigator.pushNamed(context, "Game/" + g.uid)));
     }
-    return SingleChildScrollView(
-      child: Column(
-        children: gameList,
+    gameList.add(Divider());
+    gameList.add(
+      Text(
+        'Needing Players',
+        style: Theme.of(context).textTheme.body2,
       ),
     );
+    gameList.add(SizedBox(height: 5.0,));
+    if (loadingWaiting) {
+      gameList.add(Text("Loading..."));
+    } else {
+      if (gamesNeedingPlayers.length == 0) {
+        gameList.add(Text("No games need players"));
+      } else {
+        for (Game g in gamesNeedingPlayers) {
+          gameList.add(GameListWidget(
+              game: g,
+              data: widget.data,
+              onTap: () => Navigator.pushNamed(context, "Game/" + g.uid)));
+        }
+      }
+    }
+    return Container(
+      margin: EdgeInsets.all(5.0),
+        child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: gameList,
+      ),
+    ),);
   }
 
   void _newGame() {
@@ -110,6 +145,9 @@ class _GameListState extends State<GameList> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: new Text("Tawlbwrdd - Games"),
+      ),
+      drawer: new TawlbwrddDrawer(
+        gameData: widget.data,
       ),
       body: _buildBody(),
       floatingActionButton: new FloatingActionButton(

@@ -38,12 +38,12 @@ class GameData {
   bool _creating = false;
   FusedUserProfile currentProfile;
   FirebaseUser currentFirebaseUser;
-  Stream<FusedUserProfile> currentProfileChanged;
+  Stream<FusedUserProfile> onProfileChanged;
   final StreamController<FusedUserProfile> _profileChangedController =
       StreamController<FusedUserProfile>();
 
   GameData() {
-    currentProfileChanged =
+    onProfileChanged =
         _profileChangedController.stream.asBroadcastStream();
     FirebaseAuth.instance.onAuthStateChanged.listen((FirebaseUser user) {
       _onAuthChanged(user);

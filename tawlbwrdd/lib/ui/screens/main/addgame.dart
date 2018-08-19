@@ -46,7 +46,11 @@ class _AddGameScreenState extends State<AddGameScreen> {
   }
 
   void _joinDialog(Game g) async {
-    joinGameDialog(context, g, widget.gameData);
+    bool ret = await joinGameDialog(context, g, widget.gameData);
+    if (ret) {
+      // Go to the dialog.
+      Navigator.popAndPushNamed(context, "/Game/" + g.uid);
+    }
   }
 
   void _createGame() async {
@@ -62,6 +66,7 @@ class _AddGameScreenState extends State<AddGameScreen> {
         game.playerUidAttacker = widget.gameData.currentFirebaseUser.uid;
       }
       print('About to add ${widget.gameData}');
+      game.board.setupBasicLayout();
       await widget.gameData.addGame(game);
       print('Did the add');
       Navigator.pushNamed(context, "/Home");

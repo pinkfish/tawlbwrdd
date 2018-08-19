@@ -6,6 +6,7 @@ import 'package:tawlbwrdd/db/gamedata.dart';
 import 'package:tawlbwrdd/ui/screens/login/loginscreen.dart';
 import 'package:tawlbwrdd/ui/screens/main/addgame.dart';
 import 'package:tawlbwrdd/ui/screens/main/rules.dart';
+import 'package:tawlbwrdd/ui/screens/main/about.dart';
 
 class AppRoutes {
   static GameData data;
@@ -37,6 +38,13 @@ class AppRoutes {
       handler: new Handler(handlerFunc:
           (BuildContext context, Map<String, List<String>> params) {
         return new AddGameScreen(gameData: data);
+      }),
+    );
+    router.define(
+      "/About",
+      handler: new Handler(handlerFunc:
+          (BuildContext context, Map<String, List<String>> params) {
+        return new AboutScreen();
       }),
     );
     router.define(

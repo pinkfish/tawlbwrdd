@@ -25,6 +25,7 @@ class _GameDetailsState extends State<GameDetails> {
   Point _tappedLoc;
   Game _realGame;
   StreamSubscription<Game> _stream;
+  bool _theirTurn;
 
   void initState() {
     widget.game.then((SingleGameSetup single) {
@@ -51,6 +52,11 @@ class _GameDetailsState extends State<GameDetails> {
   Widget _buildBoard() {
     if (_realGame == null) {
       return Center(child: Text("Loading..."));
+    }
+    if (_realGame.playerUidDefender != null &&
+        _realGame.playerUidAttacker != null &&
+        _realGame.status == GameStatus.WaitingForPlayer) {
+      _realGame.status = GameStatus.Started;
     }
     int y = 0;
 
@@ -169,14 +175,29 @@ class _GameDetailsState extends State<GameDetails> {
             ),
           ] +
           (_realGame.status == GameStatus.WaitingForPlayer
-              ? [
-                  MaterialButton(
-                    child: Text("JOIN GAME"),
-                    color: Theme.of(context).accentColor,
-                    textColor: Colors.white,
-                    onPressed: () => _joinDialog(_realGame),
-                  )
-                ]
+              ? _realGame.playerUidAttacker ==
+                          widget.gameData.currentFirebaseUser.uid ||
+                      _realGame.playerUidDefender ==
+                          widget.gameData.currentFirebaseUser.uid
+                  ? [
+                      SizedBox(
+                        height: 10.0,
+                      ),
+                      Center(
+                        child: Text(
+                          "Waiting for player to join",
+                          style: Theme.of(context).textTheme.headline.copyWith(color: Colors.orange.shade900),
+                        ),
+                      ),
+                    ]
+                  : [
+                      MaterialButton(
+                        child: Text("JOIN GAME"),
+                        color: Theme.of(context).accentColor,
+                        textColor: Colors.white,
+                        onPressed: () => _joinDialog(_realGame),
+                      )
+                    ]
               : _realGame.isUserTurn(widget.userUid)
                   ? [Expanded(child: Center(child: Text("Your Turn!")))]
                   : []),
@@ -209,6 +230,10 @@ class _GameDetailsState extends State<GameDetails> {
     if (_realGame.status != GameStatus.Started) {
       return;
     }
+    if (_realGame.isUserTurn(widget.gameData.currentFirebaseUser.uid)) {
+      _theirTurn = true;
+      return;
+    }
     print('tapped $to $_tappedLoc ${_realGame.board.pieces[to.y][to.x]}');
     if (_tappedLoc != null && _tappedLoc.x == to.x && _tappedLoc.y == to.y) {
       setState(() {
@@ -220,6 +245,7 @@ class _GameDetailsState extends State<GameDetails> {
       // See if we can move here.
       if (_realGame.isMoveValid(_tappedLoc, to)) {
         _realGame.makeMove(_tappedLoc, to);
+        widget.gameData.updateGame(_realGame);
         setState(() {
           _tappedLoc = null;
         });

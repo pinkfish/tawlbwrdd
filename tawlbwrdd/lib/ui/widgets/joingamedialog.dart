@@ -47,6 +47,8 @@ Future<bool> joinGameDialog(
     } else {
       g.playerUidAttacker = gameData.currentFirebaseUser.uid;
     }
+    // Start the game.
+    g.start();
     print('Updating... $g');
     await gameData.updateGame(g);
   }
