@@ -1,9 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+const gamechanged_1 = require("./lib/gamechanged");
+exports.gameChanged = gamechanged_1.gameChanged;
 //# sourceMappingURL=index.js.map

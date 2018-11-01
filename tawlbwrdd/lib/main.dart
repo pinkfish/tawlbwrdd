@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:tawlbwrdd/services/approutes.dart';
 import 'package:tawlbwrdd/db/gamedata.dart';
 import 'package:tawlbwrdd/services/analytics.dart';
+import 'package:tawlbwrdd/services/notifications.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:tawlbwrdd/services/loggingdata.dart';
 import 'package:tawlbwrdd/ui/screens/splash/splashscreen.dart';
+
+Notifications notification;
 
 void main() async {
   Trace trace = Analytics.instance.newTrace("startup");
@@ -16,6 +19,8 @@ void main() async {
   };
   GameData data = new GameData();
   await data.currentUserAsync();
+  notification = new Notifications(data);
+  notification.init();
 
   trace.stop();
   runApp(new MyApp(

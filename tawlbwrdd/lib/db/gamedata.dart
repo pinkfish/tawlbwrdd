@@ -43,8 +43,7 @@ class GameData {
       StreamController<FusedUserProfile>();
 
   GameData() {
-    onProfileChanged =
-        _profileChangedController.stream.asBroadcastStream();
+    onProfileChanged = _profileChangedController.stream.asBroadcastStream();
     FirebaseAuth.instance.onAuthStateChanged.listen((FirebaseUser user) {
       _onAuthChanged(user);
     });
@@ -283,6 +282,20 @@ class GameData {
         }
       }
     }
+  }
+
+  ///
+  /// Set the notification token for the current user.
+  ///
+  Future<void> setNotificationToken(String token) async {
+    Map<String, bool> data = <String, bool>{};
+    String key = "${FusedUserProfile.TOKENS}.$token";
+
+    data[key] = true;
+    return Firestore.instance
+        .collection("Users")
+        .document(currentFirebaseUser.uid)
+        .updateData(data);
   }
 }
 
